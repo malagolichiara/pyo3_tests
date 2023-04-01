@@ -32,28 +32,31 @@ Blueprint 30: Each ore robot costs 2 ore. Each clay robot costs 4 ore. Each obsi
 from collections import deque
 import re
 
+
 def parser2(s):
     ret = []
     for line in s.splitlines():
-        parsed_line = re.findall(r'Blueprint \d+: Each (\w+) robot costs (\d+) (\w+). Each (\w+) robot costs (\d+) (\w+). Each (\w+) robot costs (\d+) (\w+) and (\d+) (\w+). Each (\w+) robot costs (\d+) (\w+) and (\d+) (\w+).',
-                         line,
-                         re.I|re.S)[0]
+        parsed_line = re.findall(
+            r"Blueprint \d+: Each (\w+) robot costs (\d+) (\w+). Each (\w+) robot costs (\d+) (\w+). Each (\w+) robot costs (\d+) (\w+) and (\d+) (\w+). Each (\w+) robot costs (\d+) (\w+) and (\d+) (\w+).",
+            line,
+            re.I | re.S,
+        )[0]
         # print(parsed_line)
         d = {}
         inside = {}
-        inside['ore'] = int(parsed_line[1])
-        d['ore'] = inside
+        inside["ore"] = int(parsed_line[1])
+        d["ore"] = inside
         inside = {}
-        inside['ore'] = int(parsed_line[4])
-        d['clay'] = inside
+        inside["ore"] = int(parsed_line[4])
+        d["clay"] = inside
         inside = {}
-        inside['ore'] = int(parsed_line[7])
-        inside['clay'] = int(parsed_line[9])
-        d['obsidian'] = inside
+        inside["ore"] = int(parsed_line[7])
+        inside["clay"] = int(parsed_line[9])
+        d["obsidian"] = inside
         inside = {}
-        inside['ore'] = int(parsed_line[12])
-        inside['obsidian'] = int(parsed_line[14])
-        d['geode'] = inside
+        inside["ore"] = int(parsed_line[12])
+        inside["obsidian"] = int(parsed_line[14])
+        d["geode"] = inside
 
         ret.append(d)
         # ret.append(
@@ -68,44 +71,60 @@ def parser2(s):
         # )
     return ret
 
+
 def run_blueprint2(bp, time_limit=24):
-    max_ore = max([x['ore'] for x in bp.values()])
-    max_clay = max([x.get('clay',0) for x in bp.values()])
-    max_obsidian = max([x.get('obsidian',0) for x in bp.values()])
-    bp_ore_ore = bp['ore']['ore']
-    bp_clay_ore = bp['clay']['ore']
-    bp_o_o = bp['obsidian']['ore']
-    bp_o_c = bp['obsidian']['clay']
-    bp_gore = bp['geode']['ore']
-    bp_go = bp['geode']['obsidian']
+    max_ore = max([x["ore"] for x in bp.values()])
+    max_clay = max([x.get("clay", 0) for x in bp.values()])
+    max_obsidian = max([x.get("obsidian", 0) for x in bp.values()])
+    bp_ore_ore = bp["ore"]["ore"]
+    bp_clay_ore = bp["clay"]["ore"]
+    bp_o_o = bp["obsidian"]["ore"]
+    bp_o_c = bp["obsidian"]["clay"]
+    bp_gore = bp["geode"]["ore"]
+    bp_go = bp["geode"]["obsidian"]
 
     # robots, resources, timer
-    stack = deque([(1,0,0,0,0,0,0,0,0)])
+    stack = deque([(1, 0, 0, 0, 0, 0, 0, 0, 0)])
     seen = set()
-    ret_max = 0    
-    gen = 0;
-    geodes_at_gen = 0;
+    ret_max = 0
+    gen = 0
+    geodes_at_gen = 0
 
     while stack:
         # print(len(stack), end=" ")
-        (robots_ore, robots_clay, robots_obsidian, robots_geode,
-        resources_ore, resources_clay, resources_obsidian, resources_geode,
-            timer) = stack.popleft()
+        (
+            robots_ore,
+            robots_clay,
+            robots_obsidian,
+            robots_geode,
+            resources_ore,
+            resources_clay,
+            resources_obsidian,
+            resources_geode,
+            timer,
+        ) = stack.popleft()
 
-        state = (robots_ore, robots_clay, robots_obsidian, robots_geode,
-            resources_ore, resources_clay, resources_obsidian, resources_geode,
-            timer)
-        
+        state = (
+            robots_ore,
+            robots_clay,
+            robots_obsidian,
+            robots_geode,
+            resources_ore,
+            resources_clay,
+            resources_obsidian,
+            resources_geode,
+            timer,
+        )
+
         if state in seen:
             continue
         seen.add(state)
 
         if timer == time_limit:
-            if resources_geode>ret_max:
+            if resources_geode > ret_max:
                 ret_max = resources_geode
                 # print(f"geode {resources_geode}")
         else:
-
             gen = max(gen, timer)
             geodes_at_gen = max(robots_geode, geodes_at_gen)
 
@@ -113,35 +132,94 @@ def run_blueprint2(bp, time_limit=24):
                 continue
 
             # no robot build, just storage
-            stack.append((robots_ore, robots_clay, robots_obsidian, robots_geode,
-                robots_ore + resources_ore, robots_clay + resources_clay, 
-                robots_obsidian + resources_obsidian, robots_geode + resources_geode,
-            timer+1))
+            stack.append(
+                (
+                    robots_ore,
+                    robots_clay,
+                    robots_obsidian,
+                    robots_geode,
+                    robots_ore + resources_ore,
+                    robots_clay + resources_clay,
+                    robots_obsidian + resources_obsidian,
+                    robots_geode + resources_geode,
+                    timer + 1,
+                )
+            )
             # robot build
             if bp_ore_ore <= resources_ore and robots_ore < max_ore:
-                stack.append((robots_ore+1, robots_clay, robots_obsidian, robots_geode,
-                    robots_ore + resources_ore-bp_ore_ore, robots_clay + resources_clay, robots_obsidian + resources_obsidian, robots_geode + resources_geode,
-                timer+1))
+                stack.append(
+                    (
+                        robots_ore + 1,
+                        robots_clay,
+                        robots_obsidian,
+                        robots_geode,
+                        robots_ore + resources_ore - bp_ore_ore,
+                        robots_clay + resources_clay,
+                        robots_obsidian + resources_obsidian,
+                        robots_geode + resources_geode,
+                        timer + 1,
+                    )
+                )
             if bp_clay_ore <= resources_ore and robots_clay < max_clay:
-                stack.append((robots_ore, robots_clay+1, robots_obsidian, robots_geode,
-                    robots_ore+resources_ore-bp_clay_ore, robots_clay + resources_clay, robots_obsidian + resources_obsidian, robots_geode + resources_geode,
-                timer+1))
-            if bp_o_o <= resources_ore and bp_o_c <= resources_clay and robots_obsidian<max_obsidian:
-                stack.append((robots_ore, robots_clay, robots_obsidian+1, robots_geode,
-                    robots_ore + resources_ore-bp_o_o, robots_clay + resources_clay-bp_o_c, robots_obsidian + resources_obsidian, robots_geode + resources_geode,
-                timer+1))
+                stack.append(
+                    (
+                        robots_ore,
+                        robots_clay + 1,
+                        robots_obsidian,
+                        robots_geode,
+                        robots_ore + resources_ore - bp_clay_ore,
+                        robots_clay + resources_clay,
+                        robots_obsidian + resources_obsidian,
+                        robots_geode + resources_geode,
+                        timer + 1,
+                    )
+                )
+            if (
+                bp_o_o <= resources_ore
+                and bp_o_c <= resources_clay
+                and robots_obsidian < max_obsidian
+            ):
+                stack.append(
+                    (
+                        robots_ore,
+                        robots_clay,
+                        robots_obsidian + 1,
+                        robots_geode,
+                        robots_ore + resources_ore - bp_o_o,
+                        robots_clay + resources_clay - bp_o_c,
+                        robots_obsidian + resources_obsidian,
+                        robots_geode + resources_geode,
+                        timer + 1,
+                    )
+                )
             if bp_gore <= resources_ore and bp_go <= resources_obsidian:
-                stack.append((robots_ore, robots_clay, robots_obsidian, robots_geode+1,
-                    robots_ore + resources_ore-bp_gore, robots_clay + resources_clay, robots_obsidian + resources_obsidian-bp_go, robots_geode + resources_geode,
-                timer+1))
+                stack.append(
+                    (
+                        robots_ore,
+                        robots_clay,
+                        robots_obsidian,
+                        robots_geode + 1,
+                        robots_ore + resources_ore - bp_gore,
+                        robots_clay + resources_clay,
+                        robots_obsidian + resources_obsidian - bp_go,
+                        robots_geode + resources_geode,
+                        timer + 1,
+                    )
+                )
     return ret_max
 
+
+print("plain")
+
 import time
+
 t0 = time.monotonic()
 ret = 0
 for i, blueprint in enumerate(parser2(_input)):
     n = run_blueprint2(blueprint)
-    print(i,n)
-    ret += (i+1)*n
+    print(i, n)
+    ret += (i + 1) * n
 
-print(time.monotonic()-t0, ret)
+print(time.monotonic() - t0, ret)
+
+input()

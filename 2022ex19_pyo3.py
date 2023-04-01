@@ -31,28 +31,31 @@ Blueprint 30: Each ore robot costs 2 ore. Each clay robot costs 4 ore. Each obsi
 
 import re
 
+
 def parser2(s):
     ret = []
     for line in s.splitlines():
-        parsed_line = re.findall(r'Blueprint \d+: Each (\w+) robot costs (\d+) (\w+). Each (\w+) robot costs (\d+) (\w+). Each (\w+) robot costs (\d+) (\w+) and (\d+) (\w+). Each (\w+) robot costs (\d+) (\w+) and (\d+) (\w+).',
-                         line,
-                         re.I|re.S)[0]
+        parsed_line = re.findall(
+            r"Blueprint \d+: Each (\w+) robot costs (\d+) (\w+). Each (\w+) robot costs (\d+) (\w+). Each (\w+) robot costs (\d+) (\w+) and (\d+) (\w+). Each (\w+) robot costs (\d+) (\w+) and (\d+) (\w+).",
+            line,
+            re.I | re.S,
+        )[0]
         # print(parsed_line)
         d = {}
         inside = {}
-        inside['ore'] = int(parsed_line[1])
-        d['ore'] = inside
+        inside["ore"] = int(parsed_line[1])
+        d["ore"] = inside
         inside = {}
-        inside['ore'] = int(parsed_line[4])
-        d['clay'] = inside
+        inside["ore"] = int(parsed_line[4])
+        d["clay"] = inside
         inside = {}
-        inside['ore'] = int(parsed_line[7])
-        inside['clay'] = int(parsed_line[9])
-        d['obsidian'] = inside
+        inside["ore"] = int(parsed_line[7])
+        inside["clay"] = int(parsed_line[9])
+        d["obsidian"] = inside
         inside = {}
-        inside['ore'] = int(parsed_line[12])
-        inside['obsidian'] = int(parsed_line[14])
-        d['geode'] = inside
+        inside["ore"] = int(parsed_line[12])
+        inside["obsidian"] = int(parsed_line[14])
+        d["geode"] = inside
 
         ret.append(d)
         # ret.append(
@@ -67,14 +70,20 @@ def parser2(s):
         # )
     return ret
 
+
 import pyo3_tests
 
+print("pyo3")
+
 import time
+
 t0 = time.monotonic()
 ret = 0
 for i, blueprint in enumerate(parser2(_input)):
     n = pyo3_tests.simulation(blueprint, 24)
-    print(i,n)
-    ret += (i+1)*n
+    print(i, n)
+    ret += (i + 1) * n
 
-print(time.monotonic()-t0, ret)
+print(time.monotonic() - t0, ret)
+
+input()
